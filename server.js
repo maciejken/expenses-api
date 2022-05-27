@@ -14,6 +14,17 @@ const file = join(__dirname, "db.json");
 const adapter = new JSONFile(file);
 const db = new Low(adapter);
 
+(async () => {
+  await db.read();
+  const hasData = !!db.data;
+  db.data ||= { expenses: [] };
+
+  if (!hasData) {
+    await db.write();
+    console.info("db.json created!");
+  }
+})();
+
 const app = express();
 
 app.use(express.json());
@@ -47,12 +58,6 @@ app.use(express.json());
 
 app.get("/api/expenses", async (req, res, next) => {
   await db.read();
-  const hasData = !!db.data;
-  db.data ||= { expenses: [] };
-
-  if (!hasData) {
-    await db.write();
-  }
   res.send(db.data.expenses);
 });
 
@@ -88,6 +93,7 @@ app.use(function (req, res) {
   res.status(404);
   res.send({ error: "Sorry, can't find that" });
 });
+
 
 const httpServer = http.createServer(app);
 
