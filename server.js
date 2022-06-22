@@ -1,34 +1,13 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { create, find, findAll, syncDb } from "./db/db.esm.js";
 
 dotenv.config();
 
-syncDb();
-
 const app = express();
 
-app.use(express.json());
-
-app.get("/api/expenses", async (req, res, next) => {
-  const expenses = await findAll("expenses");
-  res.json(expenses);
-});
-
-app.post("/api/expenses", async (req, res, next) => {
-  const { title, amount } = req.body;
-  if (title && amount) {
-    const newExpense = await create("expenses", { title, amount });
-    res.json(newExpense);
-  } else {
-    next(error(422, "title or amount empty!"));
-  }
-});
-
-app.get("/api/expenses/:id", async (req, res, next) => {
-  const expense = await find("expenses", req.params.id);
-  res.json(expense);
+app.get("/hello", async (req, res, next) => {
+  res.json({ message: "Hello world!" });
 });
 
 app.use(function (err, req, res, next) {
