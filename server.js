@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { create, findAll, syncDb } from "./db/db.esm.js";
+import { create, find, findAll, syncDb } from "./db/db.esm.js";
 
 dotenv.config();
 
@@ -26,6 +26,11 @@ app.post("/api/expenses", async (req, res, next) => {
   }
 });
 
+app.get("/api/expenses/:id", async (req, res, next) => {
+  const expense = await find("expenses", req.params.id);
+  res.json(expense);
+});
+
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.send({ error: err.message });
@@ -38,8 +43,9 @@ app.use(function (req, res) {
 
 const httpServer = http.createServer(app);
 
+const HOSTNAME = process.env.HOSTNAME;
 const HTTP_PORT = process.env.HTTP_PORT;
 
 httpServer.listen(HTTP_PORT, () => {
-  console.info(`server is running on port ${HTTP_PORT}`);
+  console.info(`server is running at http://${HOSTNAME}:${HTTP_PORT}`);
 });
