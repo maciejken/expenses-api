@@ -63,5 +63,5 @@ export const remove = async (name, dataId) => {
     await db.write();
     return 1;
   }
-  return null;
+  return 0;
 };
