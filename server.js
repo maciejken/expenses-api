@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { create, findAll, remove, syncDb, update } from "./db/db.esm.js";
+import { create, find, findAll, remove, syncDb, update } from "./db/db.esm.js";
 
 dotenv.config();
 
@@ -24,6 +24,11 @@ app.post("/api/expenses", async (req, res, next) => {
   } else {
     next(error(422, "title or amount empty!"));
   }
+});
+
+app.get("/api/expenses/:id", async (req, res, next) => {
+  const expense = await find("expenses", req.params.id);
+  res.json(expense);
 });
 
 app.patch("/api/expenses/:id", async (req, res, next) => {

@@ -26,6 +26,11 @@ export const syncDb = async () => {
   }
 };
 
+export const find = async (name, itemId) => {
+  await db.read();
+  return db.data[name].find((d) => d.id === itemId) || null;
+};
+
 export const findAll = async (name) => {
   await db.read();
   return db.data[name];
