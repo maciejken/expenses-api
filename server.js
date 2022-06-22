@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { createExpense, getExpenses, syncDb } from "./db.esm.js";
+import { create, findAll, syncDb } from "./db/db.esm.js";
 
 dotenv.config();
 
@@ -12,14 +12,14 @@ const app = express();
 app.use(express.json());
 
 app.get("/api/expenses", async (req, res, next) => {
-  const expenses = await getExpenses();
+  const expenses = await findAll("expenses");
   res.json(expenses);
 });
 
 app.post("/api/expenses", async (req, res, next) => {
   const { title, amount } = req.body;
   if (title && amount) {
-    const newExpense = await createExpense({ title, amount });
+    const newExpense = await create("expenses", { title, amount });
     res.json(newExpense);
   } else {
     next(error(422, "title or amount empty!"));

@@ -4,5 +4,5 @@ curl -s -w "\n%{http_code}" -X POST -H "Content-Type: application/json" \
     read body
     read code
     echo $body | jq
-    echo "\nStatus: $code"
+    echo "Status: $code"
   }

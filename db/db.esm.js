@@ -9,14 +9,16 @@ const file = path.resolve(__dirname, "db.json");
 const adapter = new JSONFile(file);
 const db = new Low(adapter);
 
+const initialData = {
+  expenses: [],
+  users: [],
+  categories: [],
+};
+
 export const syncDb = async () => {
   await db.read();
   const hasData = !!db.data;
-  db.data ||= {
-    expenses: [],
-    users: [],
-    categories: [],
-  };
+  db.data ||= initialData;
 
   if (!hasData) {
     await db.write();
@@ -24,14 +26,14 @@ export const syncDb = async () => {
   }
 };
 
-export const getExpenses = async () => {
+export const findAll = async (name) => {
   await db.read();
-  return db.data.expenses;
+  return db.data[name];
 };
 
-export const createExpense = async ({ title, amount, category }) => {
-  const id = nanoid();
-  db.data.expenses.push({ id, title, amount, category });
+export const create = async (name, newData) => {
+  const newItem = { id: nanoid(), ...newData };
+  db.data[name].push(newItem);
   await db.write();
-  return { id, title, amount, category };
+  return newItem;
 };
