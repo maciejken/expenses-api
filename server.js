@@ -9,14 +9,16 @@ syncDb();
 
 const app = express();
 
+const expensesRouter = new express.Router();
+
 app.use(express.json());
 
-app.get("/api/expenses", async (req, res, next) => {
+expensesRouter.get("/", async (req, res, next) => {
   const expenses = await findAll("expenses");
   res.json(expenses);
 });
 
-app.post("/api/expenses", async (req, res, next) => {
+expensesRouter.post("/", async (req, res, next) => {
   const { title, amount } = req.body;
   if (title && amount) {
     const newExpense = await create("expenses", { title, amount });
@@ -26,21 +28,23 @@ app.post("/api/expenses", async (req, res, next) => {
   }
 });
 
-app.get("/api/expenses/:id", async (req, res, next) => {
+expensesRouter.get("/:id", async (req, res, next) => {
   const expense = await find("expenses", req.params.id);
   res.json(expense);
 });
 
-app.patch("/api/expenses/:id", async (req, res, next) => {
+expensesRouter.patch("/:id", async (req, res, next) => {
   const payload = { ...req.body, id: req.params.id };
   const updatedExpense = await update("expenses", payload);
   res.json(updatedExpense);
 });
 
-app.delete("/api/expenses/:id", async (req, res, next) => {
+expensesRouter.delete("/:id", async (req, res, next) => {
   const result = await remove("expenses", req.params.id);
   res.json(result);
 });
+
+app.use('/api/expenses', expensesRouter);
 
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
