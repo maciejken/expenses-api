@@ -31,9 +31,28 @@ export const find = async (name, itemId) => {
   return db.data[name].find((d) => d.id === itemId) || null;
 };
 
-export const findAll = async (name) => {
+export const findAll = async (name, query) => {
   await db.read();
-  return db.data[name];
+  const { where, groupBy } = query;
+  let items = db.data[name];
+
+  if (where) {
+    const basicKeys = Object.keys(where).filter(key => where[key] && typeof where[key] !== 'function');
+    const specialKeys = Object.keys(where).filter(key => typeof where[key] === 'function');
+    items = items
+      .filter(item => specialKeys.every(key => {
+        const checkFn = where[key];
+        return checkFn(item);
+      }))
+      .filter(item => basicKeys.every(key => item[key] === where[key]));
+  }
+
+  if (groupBy?.key && groupBy?.reducer) {
+    const groupKeys = [...new Set(items.map(item => item[groupBy.key]))];
+    return groupKeys.map(key => items.filter(item => item[groupBy.key] === key).reduce(groupBy.reducer, groupBy.getInitialData(key)));
+  }
+
+  return items;
 };
 
 export const create = async (name, newData) => {

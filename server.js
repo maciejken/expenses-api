@@ -13,15 +13,53 @@ const expensesRouter = new express.Router();
 
 app.use(express.json());
 
+const defaultCategory = "uncategorized";
+
+const groupByMap = {
+  category: {
+    key: "category",
+    getInitialData: (name) => ({
+      name,
+      amount: 0,
+    }),
+    reducer: (groupData, item) => ({
+      ...groupData,
+      amount: groupData.amount + item.amount
+    }),
+  }
+};
+
 expensesRouter.get("/", async (req, res, next) => {
-  const expenses = await findAll("expenses");
+  const { from, to, category, group } = req.query;
+  const startDate = new Date(from);
+  const startDateCheck = startDate.getTime() ? (item) => new Date(item.date).getTime() > startDate.getTime() : null;
+  const endDate = new Date(to);
+  const endDateCheck = endDate.getTime() ? (item) => new Date(item.date).getTime() < endDate.getTime() : null;
+  const groupBy = groupByMap[group];
+  const expenses = await findAll("expenses", {
+    where: {
+      startDate: startDateCheck,
+      endDate: endDateCheck,
+      category
+    },
+    groupBy
+  });
   res.json(expenses);
 });
 
 expensesRouter.post("/", async (req, res, next) => {
-  const { title, amount } = req.body;
+  let { title, amount, category, date } = req.body;
+  const expenseDate = new Date(date);
+  if (!expenseDate.getTime()) {
+    date = new Date().toISOString();
+  } else {
+    date = expenseDate.toISOString();
+  }
+  if (!category) {
+    category = defaultCategory;
+  }
   if (title && amount) {
-    const newExpense = await create("expenses", { title, amount });
+    const newExpense = await create("expenses", { title, amount, category, date });
     res.json(newExpense);
   } else {
     next(error(422, "title or amount empty!"));
