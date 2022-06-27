@@ -11,8 +11,6 @@ const db = new Low(adapter);
 
 const initialData = {
   expenses: [],
-  users: [],
-  categories: [],
 };
 
 export const syncDb = async () => {
