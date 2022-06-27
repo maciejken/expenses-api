@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { create, find, findAll, remove, update } from "../db/jsonDb.mjs";
 import {
+  checkAmount,
   checkDateInBody,
   checkDatesInQuery,
+  checkTitle,
 } from "../middlewares/validation.mjs";
 
 const expensesRouter = new Router();
@@ -22,25 +24,31 @@ expensesRouter.get("/", checkDatesInQuery, async (req, res, next) => {
   res.json(expenses);
 });
 
-expensesRouter.post("/", checkDateInBody, async (req, res, next) => {
-  let { title, amount, category, date } = req.body;
-  const expenseDate = new Date(date);
-  if (!expenseDate.getTime()) {
-    date = new Date().toISOString();
-  } else {
-    date = expenseDate.toISOString();
+expensesRouter.post(
+  "/",
+  checkTitle,
+  checkAmount,
+  checkDateInBody,
+  async (req, res, next) => {
+    let { title, amount, category, date } = req.body;
+    const expenseDate = new Date(date);
+    if (!expenseDate.getTime()) {
+      date = new Date().toISOString();
+    } else {
+      date = expenseDate.toISOString();
+    }
+    if (!category) {
+      category = defaultCategory;
+    }
+    const newExpense = await create("expenses", {
+      title,
+      amount,
+      category,
+      date,
+    });
+    res.json(newExpense);
   }
-  if (!category) {
-    category = defaultCategory;
-  }
-  const newExpense = await create("expenses", {
-    title,
-    amount,
-    category,
-    date,
-  });
-  res.json(newExpense);
-});
+);
 
 expensesRouter.get("/:id", async (req, res, next) => {
   const expense = await find("expenses", req.params.id);

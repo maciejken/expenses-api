@@ -1,8 +1,8 @@
-import isDate from "validator/lib/isDate.js";
+import validator from "validator";
 import { AppError } from "./errors.mjs";
 
 const checkDate = (date, isRequired = false) => {
-  return !(date || isRequired) || isDate(date);
+  return !(date || isRequired) || validator.isDate('' + date);
 };
 
 const getErrorMessage = ({ name, value, reqPart }) => {
@@ -13,10 +13,8 @@ const getDateError = ({ from, to, date, reqPart }) => {
   if (reqPart === "body") {
     // date is required only in new expense data
     const isValidDate = checkDate(date, true);
-    const msg =  getErrorMessage({ name: "date", value: date, reqPart });
-    return isValidDate
-      ? null
-      : new Error(msg);
+    const msg = getErrorMessage({ name: "date", value: date, reqPart });
+    return isValidDate ? null : new Error(msg);
   }
   const isValidFrom = checkDate(from);
   const isValidTo = checkDate(to);
@@ -49,5 +47,33 @@ export const checkDatesInQuery = (req, res, next) => {
     next();
   } else {
     next(error);
+  }
+};
+
+export const checkTitle = (req, res, next) => {
+  const isValid = validator.isLength(req.body.title, { min: 3, max: 64 });
+  if (isValid) {
+    next();
+  } else {
+    const msg = getErrorMessage({
+      name: "title",
+      value: req.body.title,
+      reqPart: "body",
+    });
+    next(new Error(msg));
+  }
+};
+
+export const checkAmount = (req, res, next) => {
+  const isValid = validator.isFloat("" + req.body.amount, { min: 0.01 });
+  if (isValid) {
+    next();
+  } else {
+    const msg = getErrorMessage({
+      name: "amount",
+      value: req.body.amount,
+      reqPart: "body",
+    });
+    next(new Error(msg));
   }
 };
