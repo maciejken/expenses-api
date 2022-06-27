@@ -2,6 +2,7 @@ import { Low, JSONFile } from "lowdb";
 import { fileURLToPath } from "url";
 import { nanoid } from "nanoid";
 import path from "path";
+import filterItems from "../utils/filterItems.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,26 +32,8 @@ export const find = async (name, itemId) => {
 
 export const findAll = async (name, query) => {
   await db.read();
-  const { where, groupBy } = query;
   let items = db.data[name];
-
-  if (where) {
-    const basicKeys = Object.keys(where).filter(key => where[key] && typeof where[key] !== 'function');
-    const specialKeys = Object.keys(where).filter(key => typeof where[key] === 'function');
-    items = items
-      .filter(item => specialKeys.every(key => {
-        const checkFn = where[key];
-        return checkFn(item);
-      }))
-      .filter(item => basicKeys.every(key => item[key] === where[key]));
-  }
-
-  if (groupBy?.key && groupBy?.reducer) {
-    const groupKeys = [...new Set(items.map(item => item[groupBy.key]))];
-    return groupKeys.map(key => items.filter(item => item[groupBy.key] === key).reduce(groupBy.reducer, groupBy.getInitialData(key)));
-  }
-
-  return items;
+  return filterItems(items, query);
 };
 
 export const create = async (name, newData) => {
