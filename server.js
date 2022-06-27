@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { create, find, findAll, syncDb } from "./db/db.esm.js";
+import { create, find, findAll, syncDb } from "./db/jsonDb.mjs";
 
 dotenv.config();
 
