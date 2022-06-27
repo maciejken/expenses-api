@@ -1,6 +1,6 @@
-import express from "express";
-import http from "http";
-import dotenv from "dotenv";
+const express = require("express");
+const http = require("http");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
