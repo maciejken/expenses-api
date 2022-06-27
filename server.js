@@ -22,7 +22,7 @@ app.post("/api/expenses", async (req, res, next) => {
     const newExpense = await create("expenses", { title, amount });
     res.json(newExpense);
   } else {
-    next(error(422, "title or amount empty!"));
+    next(new Error("title or amount empty!"));
   }
 });
 
