@@ -15,29 +15,12 @@ app.use(express.json());
 
 const defaultCategory = "uncategorized";
 
-const groupByMap = {
-  category: {
-    key: "category",
-    getInitialData: (name) => ({
-      name,
-      count: 0,
-      totalAmount: 0,
-    }),
-    reducer: (groupData, item) => ({
-      ...groupData,
-      count: groupData.count + 1,
-      totalAmount: groupData.totalAmount + item.amount
-    }),
-  }
-};
-
 expensesRouter.get("/", async (req, res, next) => {
-  const { from, to, category, group } = req.query;
+  const { from, to, category, groupBy } = req.query;
   const startDate = new Date(from);
   const startDateCheck = startDate.getTime() ? (item) => new Date(item.date).getTime() > startDate.getTime() : null;
   const endDate = new Date(to);
   const endDateCheck = endDate.getTime() ? (item) => new Date(item.date).getTime() < endDate.getTime() : null;
-  const groupBy = groupByMap[group];
   const expenses = await findAll("expenses", {
     where: {
       startDate: startDateCheck,

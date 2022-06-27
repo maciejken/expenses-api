@@ -2,7 +2,7 @@ import { Low, JSONFile } from "lowdb";
 import { fileURLToPath } from "url";
 import { nanoid } from "nanoid";
 import path from "path";
-import filterItems from "../utils/filterItems.mjs";
+import { filterItems } from "../utils/filterItems.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

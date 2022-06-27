@@ -1,0 +1,5 @@
+{
+  "transform": {
+    "\\.mjs$": "babel-jest"
+  }
+}
