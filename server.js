@@ -17,17 +17,15 @@ const defaultCategory = "uncategorized";
 
 expensesRouter.get("/", async (req, res, next) => {
   const { from, to, category, groupBy } = req.query;
-  const startDate = new Date(from);
-  const startDateCheck = startDate.getTime() ? (item) => new Date(item.date).getTime() > startDate.getTime() : null;
-  const endDate = new Date(to);
-  const endDateCheck = endDate.getTime() ? (item) => new Date(item.date).getTime() < endDate.getTime() : null;
+  const startDate = from ? new Date(from) : null;
+  const endDate = to ? new Date(to) : null;
   const expenses = await findAll("expenses", {
     where: {
-      startDate: startDateCheck,
-      endDate: endDateCheck,
-      category
+      startDate,
+      endDate,
+      category,
     },
-    groupBy
+    groupBy,
   });
   res.json(expenses);
 });
@@ -44,10 +42,15 @@ expensesRouter.post("/", async (req, res, next) => {
     category = defaultCategory;
   }
   if (title && amount) {
-    const newExpense = await create("expenses", { title, amount, category, date });
+    const newExpense = await create("expenses", {
+      title,
+      amount: parseFloat(amount),
+      category,
+      date,
+    });
     res.json(newExpense);
   } else {
-    next(error(422, "title or amount empty!"));
+    next(new Error("title or amount empty!"));
   }
 });
 
@@ -67,7 +70,7 @@ expensesRouter.delete("/:id", async (req, res, next) => {
   res.json(result);
 });
 
-app.use('/api/expenses', expensesRouter);
+app.use("/api/expenses", expensesRouter);
 
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);

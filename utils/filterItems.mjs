@@ -10,14 +10,16 @@ const groupByMap = {
     key: "category",
     getInitialData: (name) => ({
       name,
-      count: 0,
+      items: [],
       totalAmount: 0,
     }),
-    reducer: (groupData, item) => ({
-      ...groupData,
-      count: groupData.count + 1,
-      totalAmount: groupData.totalAmount + item.amount
-    }),
+    reducer: ({ name, items, totalAmount }, item) => {
+      return {
+        name,
+        items: items.concat(item),
+        totalAmount: totalAmount + item.amount
+      };
+    },
   }
 };
 
