@@ -42,7 +42,7 @@ expensesRouter.post(
     }
     const newExpense = await create("expenses", {
       title,
-      amount,
+      amount: parseFloat(amount),
       category,
       date,
     });
