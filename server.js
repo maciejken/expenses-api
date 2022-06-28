@@ -1,8 +1,10 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
+import logger from "./lib/logger.mjs";
 import { syncDb } from "./db/jsonDb.mjs";
-import expensesRouter from "./routes/expenses.mjs"
+import expensesRouter from "./routes/expenses.mjs";
+import errorHandler from "./middlewares/errors.mjs";
 
 dotenv.config();
 
@@ -12,17 +14,21 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/api/expenses', expensesRouter);
+const logRequestStart = (req, res, next) => {
+  logger.info(`${req.method} ${req.originalUrl}, client IP ${req.ip}`);
+  next();
+};
+app.use(logRequestStart);
 
-app.use(function (err, req, res, next) {
-  res.status(err.status || 500);
-  res.send({ error: err.message });
-});
+app.use("/api/expenses", expensesRouter);
 
-app.use(function (req, res) {
-  res.status(404);
-  res.send({ error: "Sorry, can't find that" });
-});
+const logRequestError = (req, res, next) => {
+  logger.error(`${req.method} ${req.originalUrl} route not found`);
+  next();
+};
+app.use(logRequestError);
+
+app.use(errorHandler);
 
 const httpServer = http.createServer(app);
 
@@ -30,5 +36,5 @@ const HOSTNAME = process.env.HOSTNAME;
 const HTTP_PORT = process.env.HTTP_PORT;
 
 httpServer.listen(HTTP_PORT, () => {
-  console.info(`server is running at http://${HOSTNAME}:${HTTP_PORT}`);
+  logger.info(`listening at http://${HOSTNAME}:${HTTP_PORT}`);
 });

@@ -1,12 +1,12 @@
 import validator from "validator";
-import { AppError } from "./errors.mjs";
+import { ErrorMap } from "./errors.mjs";
 
 const checkDate = (date, isRequired = false) => {
-  return !(date || isRequired) || validator.isDate('' + date);
+  return !(date || isRequired) || validator.isDate("" + date);
 };
 
 const getErrorMessage = ({ name, value, reqPart }) => {
-  return `${AppError.InputError}: '${name}' - incorrect value in ${reqPart} ('${value}')`;
+  return `${ErrorMap.InputError.type}: '${name}' - incorrect value in ${reqPart} ('${value}')`;
 };
 
 const getDateError = ({ from, to, date, reqPart }) => {
