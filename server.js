@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
+import morgan from "morgan";
 import logger from "./lib/logger.mjs";
 import { syncDb } from "./db/jsonDb.mjs";
 import expensesRouter from "./routes/expenses.mjs";
@@ -12,21 +13,18 @@ syncDb();
 
 const app = express();
 
+app.use(
+  morgan(
+    ':remote-addr - :remote-user ":method :url HTTP/:http-version" status: :status :res[content-length] - :response-time ms ":referrer" ":user-agent"',
+    {
+      stream: logger.stream,
+    }
+  )
+);
+
 app.use(express.json());
 
-const logRequestStart = (req, res, next) => {
-  logger.info(`${req.method} ${req.originalUrl}, client IP ${req.ip}`);
-  next();
-};
-app.use(logRequestStart);
-
 app.use("/api/expenses", expensesRouter);
-
-const logRequestError = (req, res, next) => {
-  logger.error(`${req.method} ${req.originalUrl} route not found`);
-  next();
-};
-app.use(logRequestError);
 
 app.use(errorHandler);
 

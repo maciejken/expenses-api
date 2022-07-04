@@ -46,11 +46,18 @@ export const create = async (name, newData) => {
 
 export const update = async (name, updatedData) => {
   await db.read();
-  const updatedDataIndex = db.data[name]
-    .map((item) => item.id)
-    .indexOf(updatedData.id);
-  if (updatedDataIndex >= 0) {
-    db.data[name][updatedDataIndex] = updatedData;
+  const data = db.data[name];
+  let isUpdated = false;
+  const mappedData = data.map((d) => {
+    if (d.id !== updatedData.id) {
+      return d;
+    } else {
+      isUpdated = true;
+      return updatedData;
+    }
+  });
+  if (isUpdated) {
+    db.data[name] = mappedData;
     await db.write();
     return updatedData;
   }
@@ -59,14 +66,12 @@ export const update = async (name, updatedData) => {
 
 export const remove = async (name, dataId) => {
   await db.read();
-  const deletedDataIndex = db.data[name].map((item) => item.id).indexOf(dataId);
-  if (deletedDataIndex >= 0) {
-    const data = db.data[name];
-    db.data[name] = data
-      .slice(0, deletedDataIndex)
-      .concat(data.slice(deletedDataIndex + 1));
+  const oldData = db.data[name];
+  const newData = oldData.filter((d) => d.id !== dataId);
+  if (oldData.length > newData.length) {
+    db.data[name] = newData;
     await db.write();
-    return 1;
+    return oldData.length - newData.length;
   }
   return 0;
 };
