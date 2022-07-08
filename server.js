@@ -2,10 +2,10 @@ import express from "express";
 import http from "http";
 import dotenv from "dotenv";
 import morgan from "morgan";
-import logger from "./lib/logger.mjs";
-import { syncDb } from "./db/jsonDb.mjs";
-import expensesRouter from "./routes/expenses.mjs";
-import errorHandler from "./middlewares/errors.mjs";
+import logger from "./lib/logger.js";
+import { syncDb } from "./db/jsonDb.js";
+import expensesRouter from "./routes/expenses.js";
+import errorHandler from "./middlewares/errors.js";
 
 dotenv.config();
 

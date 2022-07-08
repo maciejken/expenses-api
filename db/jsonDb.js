@@ -2,7 +2,7 @@ import { Low, JSONFile } from "lowdb";
 import { fileURLToPath } from "url";
 import { nanoid } from "nanoid";
 import path from "path";
-import { filterItems } from "../utils/filterItems.mjs";
+import { filterItems } from "../utils/filterItems.esm.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -71,7 +71,6 @@ export const remove = async (name, dataId) => {
   if (oldData.length > newData.length) {
     db.data[name] = newData;
     await db.write();
-    return oldData.length - newData.length;
   }
-  return 0;
+  return oldData.length - newData.length;
 };

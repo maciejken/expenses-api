@@ -1,12 +1,16 @@
-import logger from "../lib/logger.mjs";
+import logger from "../lib/logger.js";
 
 export const ErrorMap = {
-  InputError: {
-    type: "InputError",
+  NotFound: {
+    type: "NotFound",
+    status: 404,
+  },
+  InvalidInput: {
+    type: "InvalidInput",
     status: 411,
   },
-  AuthError: {
-    type: "AuthError",
+  Unauthorized: {
+    type: "Unauthorized",
     status: 401,
   },
 };
@@ -27,7 +31,6 @@ export const errorHandler = (err, req, res, next) => {
     status = errorMapping.status;
   }
 
-  logger.error(err.stack);
   res.status(status).json({ error });
 };
 
